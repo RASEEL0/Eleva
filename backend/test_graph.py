@@ -8,7 +8,7 @@ initial_state = {
 
     "user_id": "1",
 
-    "resume_path": "uploads/Raseel_CV.pdf",
+    "resume_path": "uploads/RASEEL ALKHAMEES -EN.pdf",
 
     "target_job": "Backend Developer",
 
