@@ -3,6 +3,7 @@ import re
 
 from config.llm import llm
 from graph.state import CareerState
+from agents.utils import safe_json_parse
 
 
 def generate_application_package(
@@ -40,15 +41,15 @@ Return this exact format:
 """
 
     response = llm.invoke(prompt)
+    
+
+    print("========== RAW RESPONSE ==========")
+    print(response.content)
+    print("==================================")
+    
     content = response.content
-
     # Extract JSON from the LLM response
-    match = re.search(r"\{.*?\}", content, re.DOTALL)
-
-    if not match:
-        raise ValueError("No JSON found in LLM response.")
-
-    return json.loads(match.group())
+    return safe_json_parse(content)
 
 
 def application_agent(state: CareerState):
@@ -66,5 +67,5 @@ def application_agent(state: CareerState):
     except Exception as e:
         return {
         "application_package": {},
-        "error": f"Application Package Failed: {str(e)}"
+        "status": f"Application Package Failed: {str(e)}"   # was "error"
     }

@@ -3,6 +3,7 @@ import re
 
 from config.llm import llm
 from graph.state import CareerState
+from agents.utils import safe_json_parse
 
 
 def analyze_job_requirements(job_title: str) -> dict:
@@ -60,12 +61,7 @@ Generate the profile now.
 
     content = response.content
 
-    match = re.search(r"\{.*\}", content, re.DOTALL)
-
-    if not match:
-        raise ValueError("No JSON found in LLM response.")
-
-    return json.loads(match.group())
+    return safe_json_parse(content)
 
 
 def job_agent(state: CareerState):

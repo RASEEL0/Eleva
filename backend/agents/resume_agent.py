@@ -4,6 +4,7 @@ from graph.state import CareerState
 
 import json
 import re
+from agents.utils import safe_json_parse
 
 
 def extract_resume_text(pdf_path: str) -> str:
@@ -82,12 +83,7 @@ Resume:
 
     content = response.content
 
-    match = re.search(r"\{.*\}", content, re.DOTALL)
-
-    if not match:
-        raise ValueError("No JSON found in LLM response.")
-
-    resume_data = json.loads(match.group())
+    return safe_json_parse(content)
 
     # -----------------------------
     # Safety defaults
