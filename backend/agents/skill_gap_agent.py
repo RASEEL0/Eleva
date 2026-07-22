@@ -17,7 +17,10 @@ def calculate_match(resume_skills, required_skills):
         else:
             missing.append(skill)
 
-    score = (len(matched) / len(required_skills)) * 100
+    if len(required_skills) == 0:
+         score = 0
+    else:
+         score = (len(matched) / len(required_skills)) * 100
 
     return score, missing
 
