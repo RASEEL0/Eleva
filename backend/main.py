@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="CareerPilot AI",
+    title="ِEleva",
     version="1.0.0"
 )
 
 @app.get("/")
 def root():
     return {
-        "message": "CareerPilot AI API is running!"
+        "message": "ِEleva  API is running!"
     }
