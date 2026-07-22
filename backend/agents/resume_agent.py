@@ -38,7 +38,12 @@ Do not explain anything.
 Do not use markdown.
 Do not wrap the JSON with ```.
 
-Return this format exactly:
+
+Return this exact JSON structure.
+
+- ats_score should be an integer between 0 and 100.
+- strengths should contain 3-5 strengths.
+- weaknesses should contain 3-5 weaknesses.
 
 {{
     "name": "",
@@ -46,9 +51,15 @@ Return this format exactly:
     "education": [],
     "experience": [],
     "projects": [],
-    "ats_score": 0,
-    "strengths": [],
-    "weaknesses": []
+    "ats_score": 85,
+    "strengths": [
+        "...",
+        "..."
+    ],
+    "weaknesses": [
+        "...",
+        "..."
+    ]
 }}
 
 Resume:
