@@ -26,40 +26,33 @@ def extract_resume_text(pdf_path: str) -> str:
 def analyze_resume(text: str) -> dict:
 
     prompt = f"""
-You are an expert ATS Resume Analyzer.
+You are an expert ATS Resume Analyzer and career coach.
 
-Analyze the following resume and extract structured information.
+Analyze the resume below and extract ALL technical and professional information.
 
-If a field cannot be determined, return an empty string or empty list.
+Important rules:
+- Extract every programming language, framework, tool, database, cloud technology, AI technology, and software tool mentioned in the resume.
+- Do not summarize skills.
+- Do not remove skills because they appear inside projects or experience.
+- Include skills from the "Technical Skills", "Hard Skills", projects, education, and work experience sections.
+- Keep the skill names exactly as they appear in the resume.
+- Return ONLY valid JSON.
 
-Return ONLY valid JSON.
-
-Do not explain anything.
-Do not use markdown.
-Do not wrap the JSON with ```.
-
-
-Return this exact JSON structure.
-
-- ats_score should be an integer between 0 and 100.
-- strengths should contain 3-5 strengths.
-- weaknesses should contain 3-5 weaknesses.
+Return this exact structure:
 
 {{
     "name": "",
-    "skills": [],
+    "skills": [
+        "example: Python",
+        "example: Java",
+        "example: SQL"
+    ],
     "education": [],
     "experience": [],
     "projects": [],
-    "ats_score": 85,
-    "strengths": [
-        "...",
-        "..."
-    ],
-    "weaknesses": [
-        "...",
-        "..."
-    ]
+    "ats_score": 0,
+    "strengths": [],
+    "weaknesses": []
 }}
 
 Resume:
