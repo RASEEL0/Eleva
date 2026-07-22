@@ -1,8 +1,4 @@
-from graph.graph import build_graph
-
-
-graph = build_graph()
-
+from graph.graph import graph
 
 initial_state = {
 
@@ -12,7 +8,15 @@ initial_state = {
 
     "target_job": "Backend Developer",
 
+    "resume_text": "",
+
     "resume_data": {},
+
+    "ats_score": 0,
+
+    "strengths": [],
+
+    "weaknesses": [],
 
     "required_skills": [],
 
@@ -22,14 +26,15 @@ initial_state = {
 
     "status": "",
 
+    "application_package": {},
+
+    "resume_improvements": {},
+
+    "interview_prep": {},
+
     "learning_plan": {},
 
-    "optimized_resume": "",
-
-    "interview_questions": [],
-
     "next_action": ""
-
 }
 
 

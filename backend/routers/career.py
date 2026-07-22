@@ -27,30 +27,55 @@ async def analyze_resume(
 
         "target_job": target_job,
 
+
+        # Resume
         "resume_text": "",
 
         "resume_data": {},
 
+        "ats_score": 0,
+
+        "strengths": [],
+
+        "weaknesses": [],
+
+
+        # Job
         "required_skills": [],
 
+
+        # Skill Gap
         "missing_skills": [],
 
         "match_score": 0,
 
         "status": "",
 
+
+        # Outputs
+        "application_package": {},
+
+        "resume_improvements": {},
+
+        "interview_prep": {},
+
         "learning_plan": {},
 
-        "optimized_resume": "",
 
-        "interview_questions": [],
-
+        # Routing
         "next_action": ""
-
     }
 
 
-    result = graph.invoke(initial_state)
+    try:
+
+        result = graph.invoke(initial_state)
+
+        return result
 
 
-    return result
+    except Exception as e:
+
+        return {
+            "error": str(e)
+        }

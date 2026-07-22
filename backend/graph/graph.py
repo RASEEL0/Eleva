@@ -6,15 +6,17 @@ from .nodes import (
     resume_analysis,
     job_requirements,
     skill_gap,
-    application_ready,
-    learning_planner
+    application_agent,
+    learning_planner,
+    resume_improvement_agent,
+    interview_agent
 )
-
 
 builder = StateGraph(CareerState)
 
-
-# Nodes
+# -------------------------
+# Register Nodes
+# -------------------------
 
 builder.add_node(
     "resume_analysis",
@@ -32,8 +34,18 @@ builder.add_node(
 )
 
 builder.add_node(
-    "application_ready",
-    application_ready
+    "application_agent",
+    application_agent
+)
+
+builder.add_node(
+    "resume_improvement_agent",
+    resume_improvement_agent
+)
+
+builder.add_node(
+    "interview_agent",
+    interview_agent
 )
 
 builder.add_node(
@@ -41,8 +53,9 @@ builder.add_node(
     learning_planner
 )
 
-
-# Main flow
+# -------------------------
+# Main Flow
+# -------------------------
 
 builder.add_edge(
     START,
@@ -58,31 +71,58 @@ builder.add_edge(
     "job_requirements",
     "skill_gap"
 )
+
+# -------------------------
+# Decision
+# -------------------------
+
 def decide_next_step(state: CareerState):
 
-    if state["next_action"] == "APPLICATION_READY":
-        return "application_ready"
+    if state.get("next_action") == "APPLICATION_READY":
+        return "application_agent"
 
     return "learning_planner"
+
 
 builder.add_conditional_edges(
     "skill_gap",
     decide_next_step,
     {
-        "application_ready": "application_ready",
-        "learning_planner": "learning_planner"
-    }
+        "application_agent": "application_agent",
+        "learning_planner": "learning_planner",
+    },
 )
+
+# -------------------------
+# Application Path
+# -------------------------
+
 builder.add_edge(
-    "application_ready",
+    "application_agent",
+    "resume_improvement_agent"
+)
+
+builder.add_edge(
+    "resume_improvement_agent",
+    "interview_agent"
+)
+
+builder.add_edge(
+    "interview_agent",
     END
 )
 
+# -------------------------
+# Learning Path
+# -------------------------
 
 builder.add_edge(
     "learning_planner",
     END
 )
 
+# -------------------------
+# Compile
+# -------------------------
 
 graph = builder.compile()
