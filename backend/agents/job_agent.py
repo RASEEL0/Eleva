@@ -8,28 +8,55 @@ from graph.state import CareerState
 def analyze_job_requirements(job_title: str) -> dict:
 
     prompt = f"""
-You are an experienced technical recruiter.
+You are an expert technical recruiter and hiring manager.
 
-Given the following job title:
+Your task is to create a realistic job requirement profile.
 
+The candidate is applying for this role:
+
+Job Title:
 {job_title}
+
+Generate the common skills required for this position.
 
 Return ONLY valid JSON.
 
 Do not explain anything.
 Do not use markdown.
-Do not wrap the JSON with ```.
+Do not wrap the response with ```.
 
-Return this format exactly:
+The JSON must contain:
 
 {{
-    "required_skills": [],
-    "preferred_skills": [],
-    "responsibilities": []
+    "required_skills": [
+        "skill1",
+        "skill2",
+        "skill3"
+    ],
+    "preferred_skills": [
+        "skill1",
+        "skill2"
+    ],
+    "responsibilities": [
+        "responsibility1",
+        "responsibility2"
+    ]
 }}
+
+Important:
+- required_skills must contain at least 8 technical skills.
+- preferred_skills must contain at least 3 additional skills.
+- responsibilities must contain at least 3 common responsibilities.
+
+Generate the profile now.
 """
 
     response = llm.invoke(prompt)
+
+    # print("========== RAW RESPONSE ==========")
+    # print(response.content)
+    # print("==================================")
+
 
     content = response.content
 
