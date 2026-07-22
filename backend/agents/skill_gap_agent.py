@@ -64,11 +64,11 @@ def skill_gap_agent(state: CareerState):
         required_skills
     )
 
-    if match_score >= 80:
-        next_action = "LEARNING_PLAN"#"APPLICATION_READY"
+    if match_score >= 70:
+        next_action = "APPLICATION_READY"
         status = "Candidate matches the job requirements"
     else:
-        next_action = "APPLICATION_READY"#"LEARNING_PLAN"
+        next_action = "LEARNING_PLAN"
         status = "Candidate needs skill improvement"
 
     return {
