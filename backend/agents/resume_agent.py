@@ -8,11 +8,10 @@ import re
 
 def extract_resume_text(pdf_path: str) -> str:
     """
-    Extract all text from the uploaded resume.
+    Extract all text from a PDF resume.
     """
 
     reader = PdfReader(pdf_path)
-
     text = ""
 
     for page in reader.pages:
@@ -23,30 +22,49 @@ def extract_resume_text(pdf_path: str) -> str:
 
     return text
 
+
 def analyze_resume(text: str) -> dict:
+    """
+    Analyze the resume using the LLM and return structured JSON.
+    """
 
     prompt = f"""
-You are an expert ATS Resume Analyzer and career coach.
+You are an expert ATS Resume Analyzer and Career Coach.
 
-Analyze the resume below and extract ALL technical and professional information.
+Your job is to read the resume and extract ALL information.
 
-Important rules:
-- Extract every programming language, framework, tool, database, cloud technology, AI technology, and software tool mentioned in the resume.
-- Do not summarize skills.
-- Do not remove skills because they appear inside projects or experience.
-- Include skills from the "Technical Skills", "Hard Skills", projects, education, and work experience sections.
-- Keep the skill names exactly as they appear in the resume.
-- Return ONLY valid JSON.
+IMPORTANT RULES
 
-Return this exact structure:
+1. Extract the candidate's full name.
+2. Extract EVERY technical skill that appears anywhere in the resume.
+3. Do NOT summarize skills.
+4. Include skills from:
+   - Skills section
+   - Technical Skills
+   - Hard Skills
+   - Projects
+   - Experience
+   - Education
+   - Certifications
+5. Preserve the original skill names.
+6. Never invent information.
+7. Return ONLY valid JSON.
+8. Do NOT wrap the response in markdown.
+
+ATS SCORE
+- Return an integer between 0 and 100.
+
+STRENGTHS
+- Exactly 3 strengths.
+
+WEAKNESSES
+- Exactly 3 weaknesses.
+
+Return exactly this JSON:
 
 {{
     "name": "",
-    "skills": [
-        "example: Python",
-        "example: Java",
-        "example: SQL"
-    ],
+    "skills": [],
     "education": [],
     "experience": [],
     "projects": [],
@@ -67,32 +85,55 @@ Resume:
     match = re.search(r"\{.*\}", content, re.DOTALL)
 
     if not match:
-         raise ValueError("No JSON found in LLM response.")
+        raise ValueError("No JSON found in LLM response.")
 
-    return json.loads(match.group())
+    resume_data = json.loads(match.group())
+
+    # -----------------------------
+    # Safety defaults
+    # -----------------------------
+
+    resume_data.setdefault("name", "")
+    resume_data.setdefault("skills", [])
+    resume_data.setdefault("education", [])
+    resume_data.setdefault("experience", [])
+    resume_data.setdefault("projects", [])
+    resume_data.setdefault("ats_score", 0)
+    resume_data.setdefault("strengths", [])
+    resume_data.setdefault("weaknesses", [])
+
+    return resume_data
 
 
 def resume_agent(state: CareerState):
+    """
+    Resume Agent
+    1. Read PDF
+    2. Extract text
+    3. Analyze with LLM
+    4. Save results into graph state
+    """
 
     try:
-        text = extract_resume_text(state["resume_path"])
+        resume_text = extract_resume_text(state["resume_path"])
 
-        resume_data = analyze_resume(text)
+        resume_data = analyze_resume(resume_text)
 
         return {
-    "resume_text": text,
-    "resume_data": resume_data,
-    "ats_score": resume_data.get("ats_score", 0),
-    "strengths": resume_data.get("strengths", []),
-    "weaknesses": resume_data.get("weaknesses", [])
-}
+            "resume_text": resume_text,
+            "resume_data": resume_data,
+            "ats_score": resume_data["ats_score"],
+            "strengths": resume_data["strengths"],
+            "weaknesses": resume_data["weaknesses"],
+        }
 
     except Exception as e:
+
         return {
-        "resume_text": "",
-        "resume_data": {},
-        "ats_score": 0,
-        "strengths": [],
-        "weaknesses": [],
-        "status": f"Resume Analysis Failed: {str(e)}"
-    }
+            "resume_text": "",
+            "resume_data": {},
+            "ats_score": 0,
+            "strengths": [],
+            "weaknesses": [],
+            "status": f"Resume Analysis Failed: {e}"
+        }

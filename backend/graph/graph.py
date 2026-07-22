@@ -85,6 +85,4 @@ builder.add_edge(
 )
 
 
-def build_graph():
-
-    return builder.compile()
+graph = builder.compile()
