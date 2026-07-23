@@ -83,12 +83,14 @@ Resume:
 
     content = response.content
 
-    return safe_json_parse(content)
+    resume_data = safe_json_parse(content)
 
     # -----------------------------
     # Safety defaults
     # -----------------------------
-
+    # (Previously placed after a `return` above, so this never ran —
+    # any key the LLM omitted would cause a KeyError later in
+    # resume_agent() instead of falling back to a sane default.)
     resume_data.setdefault("name", "")
     resume_data.setdefault("skills", [])
     resume_data.setdefault("education", [])

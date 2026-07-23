@@ -1,10 +1,14 @@
+import os
 from datetime import datetime
 
 from sqlalchemy import create_engine, Column, Integer, String, Float, Text, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///./eliva.db"
+# Locally this defaults to the same ./eliva.db 
+# In docker-compose, DATABASE_URL points at /app/data/eleva.db, which is
+# a mounted volume — so your data survives container restarts/rebuilds.
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./eliva.db")
 
 engine = create_engine(
     DATABASE_URL,

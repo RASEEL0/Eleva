@@ -1,0 +1,22 @@
+services:
+
+  app:
+    build: .
+    container_name: eleva-app
+    environment:
+      # host.docker.internal lets the container reach Ollama running
+      # natively on your Mac (with GPU acceleration intact), instead of
+      # a containerized Ollama that's stuck on slow CPU-only inference.
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - DATABASE_URL=sqlite:////app/data/eleva.db
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - sqlite_data:/app/data
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:

@@ -1,4 +1,6 @@
 import json
+import os
+import uuid
 
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,6 +11,8 @@ from routers.auth import get_current_user_optional, get_current_user, get_db
 
 router = APIRouter()
 
+UPLOAD_DIR = "uploads"
+
 
 @router.post("/analyze")
 async def analyze_resume(
@@ -18,7 +22,13 @@ async def analyze_resume(
     db: Session = Depends(get_db)
 ):
 
-    file_path = f"uploads/{file.filename}"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    # Strip any directory components from the client-supplied filename and
+    # prefix with a uuid so two uploads can never collide or overwrite
+    # each other (e.g. "../../etc/passwd" -> "passwd").
+    safe_name = os.path.basename(file.filename or "resume.pdf")
+    file_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4().hex}_{safe_name}")
 
     with open(file_path, "wb") as f:
         f.write(await file.read())
