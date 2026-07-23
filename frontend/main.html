@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eleva — AI Career Copilot</title>
+<style>
+  :root {
+    --ink: #1c2b2d;
+    --paper: #f6f3ee;
+    --line: #d8d2c4;
+    --muted: #5a6663;
+    --danger: #a4402f;
+
+    --c-overview: #2f6f5e;
+    --c-overview-soft: #e4ece9;
+    --c-learning: #a9700f;
+    --c-learning-soft: #f3e8d3;
+    --c-resume: #2b5f9e;
+    --c-resume-soft: #dde8f4;
+    --c-interview: #6b458f;
+    --c-interview-soft: #e9e0f0;
+    --c-application: #b0532f;
+    --c-application-soft: #f3e2d8;
+
+    --font-display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+
+  /* ---- Splash ---- */
+
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: splash-fade 2.2s ease forwards;
+  }
+
+  #splash .logo {
+    font-family: var(--font-display);
+    font-size: 19vw;
+    max-font-size: 150px;
+    color: var(--c-overview);
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transform: scale(0.85);
+    animation: splash-logo 1.4s ease forwards 0.15s;
+  }
+
+  @media (min-width: 600px) {
+    #splash .logo { font-size: 120px; }
+  }
+
+  @keyframes splash-logo {
+    0% { opacity: 0; transform: scale(0.85); letter-spacing: 0.3em; }
+    50% { opacity: 1; transform: scale(1); letter-spacing: 0.05em; }
+    100% { opacity: 1; transform: scale(1); letter-spacing: 0.05em; }
+  }
+
+  @keyframes splash-fade {
+    0% { opacity: 1; }
+    75% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+  }
+
+  /* ---- Nav ---- */
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+  }
+
+  nav .brand {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--c-overview);
+    cursor: pointer;
+  }
+
+  nav .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 9px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 92px;
+    text-align: center;
+  }
+
+  nav .nav-right { flex-wrap: nowrap; }
+
+  @media (max-width: 420px) {
+    nav { flex-direction: column; align-items: stretch; gap: 10px; }
+    nav .nav-right { justify-content: center; }
+  }
+
+  .nav-btn.primary {
+    background: var(--c-overview);
+    color: #fff;
+    border-color: var(--c-overview);
+  }
+
+  .nav-email {
+    font-size: 13px;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  header.hero {
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+  }
+
+  header.hero .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-overview);
+    font-weight: 600;
+  }
+
+  header.hero h1 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    margin: 6px 0 8px;
+    font-weight: 500;
+  }
+
+  header.hero p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .field { margin-bottom: 18px; }
+
+  .dropzone {
+    border: 1.5px dashed var(--line);
+    border-radius: 8px;
+    padding: 22px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--paper);
+    cursor: pointer;
+  }
+
+  .dropzone:hover { border-color: var(--c-overview); }
+  .dropzone.has-file { border-color: var(--c-overview); background: var(--c-overview-soft); color: var(--ink); }
+
+  input[type="file"] { display: none; }
+
+  button.primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--c-overview);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
+  button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  button.link-btn {
+    background: none;
+    border: none;
+    color: var(--c-overview);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 12px;
+  }
+
+  .status {
+    font-size: 13px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: none;
+  }
+
+  .status.show { display: block; }
+  .status.info { background: var(--c-overview-soft); color: var(--c-overview); }
+  .status.error { background: #f7e9e6; color: var(--danger); }
+
+  /* ---- Views ---- */
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---- Dashboard ---- */
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .history-item:last-child { border-bottom: none; }
+
+  .history-item .h-job { font-weight: 600; font-size: 14px; }
+  .history-item .h-date { font-size: 12px; color: var(--muted); }
+  .history-item .h-score {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--c-overview);
+    padding: 4px 10px;
+    background: var(--c-overview-soft);
+    border-radius: 999px;
+  }
+
+  /* ---- Results (tabs) ---- */
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #fff;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tab-btn svg { width: 14px; height: 14px; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .section-head svg { width: 22px; height: 22px; flex-shrink: 0; }
+  .section-head h2 { font-family: var(--font-display); font-size: 20px; font-weight: 500; margin: 0; }
+  .section-sub { font-size: 13px; color: var(--muted); margin: 4px 0 20px; }
+
+  .score-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .score-number { font-family: var(--font-display); font-size: 44px; }
+  .score-label { font-size: 13px; color: var(--muted); }
+
+  h3.block-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 22px 0 10px;
+    font-weight: 700;
+  }
+
+  h3.block-label:first-of-type { margin-top: 0; }
+
+  ul { margin: 0; padding-left: 18px; }
+  li { font-size: 14px; margin-bottom: 6px; line-height: 1.45; }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill { font-size: 12px; padding: 5px 10px; border-radius: 999px; font-weight: 600; }
+
+  details.item {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  details.item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 13px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--paper);
+  }
+
+  details.item summary::-webkit-details-marker { display: none; }
+
+  details.item summary .chevron {
+    font-size: 11px;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  details.item[open] summary .chevron { transform: rotate(90deg); }
+
+  details.item .item-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  details.item .item-body {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    border-top: 1px solid var(--line);
+  }
+
+  details.item .item-body ul { margin-top: 8px; }
+  details.item .item-body li { font-size: 13px; }
+
+  .truncate-block p { font-size: 14px; line-height: 1.55; margin: 0; }
+
+  .show-more-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
+  .empty-note { font-size: 13px; color: var(--muted); font-style: italic; }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="splash"><div class="logo">ELEVA</div></div>
+
+<nav>
+  <div class="brand" id="brandLink">ELEVA</div>
+  <div class="nav-right" id="navRight"></div>
+</nav>
+
+<main>
+
+  <!-- ===== HOME VIEW (upload) ===== -->
+  <div class="view active" data-view="home">
+    <header class="hero">
+      <div class="eyebrow">Eleva</div>
+      <h1>AI Career Copilot</h1>
+      <p>Upload a resume and a target role to get a match score, a learning plan, and interview prep.</p>
+    </header>
+
+    <div class="card" id="uploadCard">
+      <div class="field">
+        <label for="jobInput">Target job title</label>
+        <input type="text" id="jobInput" placeholder="e.g. Software Engineer, AI Engineer" />
+      </div>
+
+      <div class="field">
+        <label>Resume (PDF)</label>
+        <div class="dropzone" id="dropzone">Click to choose a PDF file</div>
+        <input type="file" id="fileInput" accept="application/pdf" />
+      </div>
+
+      <button class="primary" id="submitBtn">Analyze</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <!-- ===== LOGIN VIEW ===== -->
+  <div class="view" data-view="login">
+    <header class="hero">
+      <div class="eyebrow">Eleva</div>
+      <h1>Log in</h1>
+      <p>Log in to save your analyses and revisit them later.</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+      </div>
+      <button class="primary" id="loginSubmitBtn">Log in</button>
+      <button class="link-btn" id="goToRegisterBtn">Don't have an account? Sign up</button>
+      <div class="status" id="loginStatus"></div>
+    </div>
+  </div>
+
+  <!-- ===== REGISTER VIEW ===== -->
+  <div class="view" data-view="register">
+    <header class="hero">
+      <div class="eyebrow">Eleva</div>
+      <h1>Create an account</h1>
+      <p>Save your resume analyses and check them anytime.</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label for="registerEmail">Email</label>
+        <input type="email" id="registerEmail" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" placeholder="••••••••" />
+      </div>
+      <button class="primary" id="registerSubmitBtn">Sign up</button>
+      <button class="link-btn" id="goToLoginBtn">Already have an account? Log in</button>
+      <div class="status" id="registerStatus"></div>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD VIEW ===== -->
+  <div class="view" data-view="dashboard">
+    <header class="hero">
+      <div class="eyebrow">Eleva</div>
+      <h1>My Resume Checks</h1>
+      <p>Your past analyses. Click one to see the full breakdown again.</p>
+    </header>
+
+    <button class="primary" id="checkNewCvBtn" style="margin-bottom: 20px;">Check new CV</button>
+
+    <div class="card" id="dashboardCard">
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- ===== RESULTS VIEW ===== -->
+  <div class="view" data-view="results">
+    <span class="back-link" id="backToHomeBtn">← Back</span>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="page active" data-page="overview">
+      <div class="card">
+        <div class="section-head" style="color: var(--c-overview);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <h2>Overview</h2>
+        </div>
+        <div class="section-sub" id="routeNote"></div>
+
+        <div class="score-row">
+          <span class="score-number" id="matchScore" style="color: var(--c-overview);">–</span>
+          <span class="score-label">match score</span>
+        </div>
+
+        <h3 class="block-label">Missing skills</h3>
+        <div class="pill-row" id="missingSkills"></div>
+
+        <h3 class="block-label">Resume strengths</h3>
+        <ul id="strengthsList"></ul>
+
+        <h3 class="block-label">Resume weaknesses</h3>
+        <ul id="weaknessesList"></ul>
+      </div>
+    </div>
+
+    <div class="page" data-page="learning">
+      <div class="card">
+        <div class="section-head" style="color: var(--c-learning);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <h2>Learning Plan</h2>
+        </div>
+        <p class="section-sub" id="learningGoal"></p>
+
+        <h3 class="block-label">Steps — tap to expand</h3>
+        <div id="learningSteps"></div>
+
+        <h3 class="block-label">Suggested projects</h3>
+        <ul id="learningProjects"></ul>
+      </div>
+    </div>
+
+    <div class="page" data-page="resume">
+      <div class="card">
+        <div class="section-head" style="color: var(--c-resume);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          <h2>Resume Improvements</h2>
+        </div>
+
+        <h3 class="block-label">Suggested summary</h3>
+        <div class="truncate-block" id="resumeSummaryBlock"></div>
+
+        <h3 class="block-label">Bullet point improvements — tap to compare</h3>
+        <div id="bulletImprovements"></div>
+
+        <h3 class="block-label">Keywords to add</h3>
+        <div class="pill-row" id="keywordsToAdd"></div>
+      </div>
+    </div>
+
+    <div class="page" data-page="interview">
+      <div class="card">
+        <div class="section-head" style="color: var(--c-interview);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <h2>Interview Prep</h2>
+        </div>
+
+        <h3 class="block-label">Technical — tap to reveal answer</h3>
+        <div id="technicalQuestions"></div>
+
+        <h3 class="block-label">About your projects</h3>
+        <div id="projectQuestions"></div>
+
+        <h3 class="block-label">Behavioral</h3>
+        <div id="behavioralQuestions"></div>
+      </div>
+    </div>
+
+    <div class="page" data-page="application">
+      <div class="card">
+        <div class="section-head" style="color: var(--c-application);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+          <h2>Application Package</h2>
+        </div>
+
+        <h3 class="block-label">Summary</h3>
+        <div class="truncate-block" id="applicationSummaryBlock"></div>
+
+        <h3 class="block-label">Talking points</h3>
+        <ul id="talkingPoints"></ul>
+
+        <h3 class="block-label">Checklist</h3>
+        <ul id="applicationChecklist"></ul>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  // Point this at your FastAPI backend. While testing locally through
+  // ngrok, use your ngrok https URL. Once deployed, use your permanent
+  // cloud URL (e.g. Render/Railway domain).
+  const BACKEND_URL = "https://unwary-lukewarm-guiding.ngrok-free.dev";
+
+  // Auth state lives in memory only — refreshing the page logs you out.
+  // (Nothing is persisted client-side; the backend session is what matters.)
+  let authToken = null;
+  let authEmail = null;
+
+  const TAB_DEFS = [
+    { key: "overview", label: "Overview", color: "var(--c-overview)",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>' },
+    { key: "learning", label: "Learning Plan", color: "var(--c-learning)",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h20v14H2z"/></svg>' },
+    { key: "resume", label: "Resume", color: "var(--c-resume)",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/></svg>' },
+    { key: "interview", label: "Interview Prep", color: "var(--c-interview)",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+    { key: "application", label: "Application", color: "var(--c-application)",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/></svg>' }
+  ];
+
+  // ---- Splash ----
+  setTimeout(() => document.getElementById("splash").style.display = "none", 2300);
+
+  // ---- View switching ----
+  function showView(name) {
+    document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.dataset.view === name));
+    if (name === "dashboard") loadHistory();
+  }
+
+  document.getElementById("brandLink").addEventListener("click", () => showView("home"));
+  document.getElementById("goToRegisterBtn").addEventListener("click", () => showView("register"));
+  document.getElementById("goToLoginBtn").addEventListener("click", () => showView("login"));
+  document.getElementById("backToHomeBtn").addEventListener("click", () => showView(authToken ? "dashboard" : "home"));
+  document.getElementById("checkNewCvBtn").addEventListener("click", () => showView("home"));
+
+  function renderNav() {
+    const navRight = document.getElementById("navRight");
+    navRight.innerHTML = "";
+
+    if (authToken) {
+      const emailSpan = document.createElement("span");
+      emailSpan.className = "nav-email";
+      emailSpan.textContent = authEmail;
+
+      const dashBtn = document.createElement("button");
+      dashBtn.className = "nav-btn";
+      dashBtn.textContent = "My Dashboard";
+      dashBtn.addEventListener("click", () => showView("dashboard"));
+
+      const logoutBtn = document.createElement("button");
+      logoutBtn.className = "nav-btn primary";
+      logoutBtn.textContent = "Log out";
+      logoutBtn.addEventListener("click", logout);
+
+      navRight.append(emailSpan, dashBtn, logoutBtn);
+    } else {
+      const loginBtn = document.createElement("button");
+      loginBtn.className = "nav-btn";
+      loginBtn.textContent = "Log in";
+      loginBtn.addEventListener("click", () => showView("login"));
+
+      const registerBtn = document.createElement("button");
+      registerBtn.className = "nav-btn primary";
+      registerBtn.textContent = "Sign up";
+      registerBtn.addEventListener("click", () => showView("register"));
+
+      navRight.append(loginBtn, registerBtn);
+    }
+  }
+  renderNav();
+
+  function setStatus(elId, message, type) {
+    const el = document.getElementById(elId);
+    el.textContent = message;
+    el.className = "status show " + type;
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // ---- Register ----
+  document.getElementById("registerSubmitBtn").addEventListener("click", async () => {
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+
+    if (!email || !password) { setStatus("registerStatus", "Enter an email and password.", "error"); return; }
+    if (!isValidEmail(email)) { setStatus("registerStatus", "Please enter a valid email address (must include an @ and a domain, e.g. name@example.com).", "error"); return; }
+    if (password.length < 6) { setStatus("registerStatus", "Password must be at least 6 characters long.", "error"); return; }
+
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+
+      const res = await fetch(`${BACKEND_URL}/register`, {
+        method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true" },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Registration failed.");
+
+      setStatus("registerStatus", "Account created — you can log in now.", "info");
+    } catch (err) {
+      setStatus("registerStatus", err.message, "error");
+    }
+  });
+
+  // ---- Login ----
+  document.getElementById("loginSubmitBtn").addEventListener("click", async () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    if (!email || !password) { setStatus("loginStatus", "Enter your email and password.", "error"); return; }
+    if (!isValidEmail(email)) { setStatus("loginStatus", "Please enter a valid email address (must include an @ and a domain).", "error"); return; }
+
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+
+      const res = await fetch(`${BACKEND_URL}/login`, {
+        method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true" },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Login failed.");
+
+      authToken = data.token;
+      authEmail = data.email;
+      renderNav();
+      showView("home");
+    } catch (err) {
+      setStatus("loginStatus", err.message, "error");
+    }
+  });
+
+  async function logout() {
+    try {
+      await fetch(`${BACKEND_URL}/logout`, {
+        method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true", "Authorization": `Bearer ${authToken}` }
+      });
+    } catch (err) { /* ignore network errors on logout */ }
+    authToken = null;
+    authEmail = null;
+    renderNav();
+    showView("home");
+  }
+
+  // ---- Upload / Analyze ----
+  const dropzone = document.getElementById("dropzone");
+  const fileInput = document.getElementById("fileInput");
+  const jobInput = document.getElementById("jobInput");
+  const submitBtn = document.getElementById("submitBtn");
+
+  let selectedFile = null;
+
+  dropzone.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+      selectedFile = fileInput.files[0];
+      dropzone.textContent = selectedFile.name;
+      dropzone.classList.add("has-file");
+    }
+  });
+
+  submitBtn.addEventListener("click", async () => {
+    const targetJob = jobInput.value.trim();
+    if (!selectedFile) { setStatus("status", "Please choose a resume PDF first.", "error"); return; }
+    if (!targetJob) { setStatus("status", "Please enter a target job title.", "error"); return; }
+
+    submitBtn.disabled = true;
+    setStatus("status", "Analyzing resume — this can take a minute...", "info");
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("target_job", targetJob);
+
+    const headers = { "ngrok-skip-browser-warning": "true" };
+    if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/career/analyze`, { method: "POST", headers, body: formData });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Server responded with ${response.status}: ${text.slice(0, 200)}`);
+      }
+      const data = await response.json();
+      renderResults(data);
+      showView("results");
+      document.getElementById("status").className = "status";
+    } catch (err) {
+      setStatus("status", "Upload failed: " + err.message, "error");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ---- Dashboard ----
+  async function loadHistory() {
+    const listEl = document.getElementById("historyList");
+    listEl.innerHTML = `<p class="empty-note">Loading...</p>`;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/career/history`, {
+        headers: { "ngrok-skip-browser-warning": "true", "Authorization": `Bearer ${authToken}` }
+      });
+      const items = await res.json();
+
+      if (!items.length) {
+        listEl.innerHTML = `<p class="empty-note">No resume checks yet — analyze one from the home page.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = "";
+      items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "history-item";
+        const date = new Date(item.created_at).toLocaleDateString();
+        row.innerHTML = `
+          <div>
+            <div class="h-job">${item.target_job}</div>
+            <div class="h-date">${date}</div>
+          </div>
+          <span class="h-score">${item.match_score}%</span>
+        `;
+        row.addEventListener("click", () => openHistoryItem(item.id));
+        listEl.appendChild(row);
+      });
+    } catch (err) {
+      listEl.innerHTML = `<p class="empty-note">Could not load history: ${err.message}</p>`;
+    }
+  }
+
+  async function openHistoryItem(id) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/career/history/${id}`, {
+        headers: { "ngrok-skip-browser-warning": "true", "Authorization": `Bearer ${authToken}` }
+      });
+      const data = await res.json();
+      renderResults(data);
+      showView("results");
+    } catch (err) {
+      alert("Could not load that result: " + err.message);
+    }
+  }
+
+  // ---- Tabs ----
+  const tabsEl = document.getElementById("tabs");
+
+  function buildTabs(availableKeys) {
+    tabsEl.innerHTML = "";
+    TAB_DEFS.filter(t => availableKeys.includes(t.key)).forEach((t, i) => {
+      const btn = document.createElement("button");
+      btn.className = "tab-btn" + (i === 0 ? " active" : "");
+      btn.dataset.page = t.key;
+      btn.innerHTML = `${t.icon}<span>${t.label}</span>`;
+      if (i === 0) { btn.style.background = t.color; btn.style.color = "#fff"; }
+      btn.addEventListener("click", () => switchTab(t.key, t.color));
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  function switchTab(key, color) {
+    document.querySelectorAll(".tab-btn").forEach(b => {
+      const active = b.dataset.page === key;
+      b.classList.toggle("active", active);
+      b.style.background = active ? color : "#fff";
+      b.style.color = active ? "#fff" : "var(--muted)";
+    });
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.dataset.page === key));
+  }
+
+  // ---- Render helpers ----
+  function fillList(elId, items, emptyText) {
+    const el = document.getElementById(elId);
+    el.innerHTML = "";
+    if (!items || items.length === 0) { el.innerHTML = `<li class="empty-note">${emptyText}</li>`; return; }
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      el.appendChild(li);
+    });
+  }
+
+  function fillPills(elId, items, emptyText, color, softColor) {
+    const el = document.getElementById(elId);
+    el.innerHTML = "";
+    if (!items || items.length === 0) { el.innerHTML = `<span class="empty-note">${emptyText}</span>`; return; }
+    items.forEach(item => {
+      const span = document.createElement("span");
+      span.className = "pill";
+      span.style.background = softColor;
+      span.style.color = color;
+      span.textContent = item;
+      el.appendChild(span);
+    });
+  }
+
+  function renderTruncated(elId, text, limit, color) {
+    const el = document.getElementById(elId);
+    el.innerHTML = "";
+    if (!text) { el.innerHTML = `<p class="empty-note">Not generated.</p>`; return; }
+
+    const p = document.createElement("p");
+    const isLong = text.length > limit;
+    p.textContent = isLong ? text.slice(0, limit).trim() + "…" : text;
+    el.appendChild(p);
+
+    if (isLong) {
+      const btn = document.createElement("button");
+      btn.className = "show-more-btn";
+      btn.style.color = color;
+      btn.textContent = "Show more";
+      let expanded = false;
+      btn.addEventListener("click", () => {
+        expanded = !expanded;
+        p.textContent = expanded ? text : text.slice(0, limit).trim() + "…";
+        btn.textContent = expanded ? "Show less" : "Show more";
+      });
+      el.appendChild(btn);
+    }
+  }
+
+  function detailsItem(badgeText, badgeColor, badgeSoft, titleHtml, bodyHtml) {
+    const details = document.createElement("details");
+    details.className = "item";
+    details.innerHTML = `
+      <summary>
+        <span>${titleHtml}</span>
+        <span style="display:flex; align-items:center; gap:10px;">
+          ${badgeText ? `<span class="item-badge" style="background:${badgeSoft}; color:${badgeColor};">${badgeText}</span>` : ""}
+          <span class="chevron">▶</span>
+        </span>
+      </summary>
+      <div class="item-body">${bodyHtml}</div>
+    `;
+    return details;
+  }
+
+  function renderResults(data) {
+    const style = getComputedStyle(document.documentElement);
+    const overviewColor = style.getPropertyValue("--c-overview").trim();
+    const overviewSoft = style.getPropertyValue("--c-overview-soft").trim();
+    const learningColor = style.getPropertyValue("--c-learning").trim();
+    const learningSoft = style.getPropertyValue("--c-learning-soft").trim();
+    const resumeColor = style.getPropertyValue("--c-resume").trim();
+    const resumeSoft = style.getPropertyValue("--c-resume-soft").trim();
+    const interviewColor = style.getPropertyValue("--c-interview").trim();
+    const interviewSoft = style.getPropertyValue("--c-interview-soft").trim();
+    const applicationColor = style.getPropertyValue("--c-application").trim();
+    const applicationSoft = style.getPropertyValue("--c-application-soft").trim();
+
+    document.getElementById("matchScore").textContent = (data.match_score !== undefined ? data.match_score : "–") + "%";
+    document.getElementById("routeNote").textContent = data.next_action === "APPLICATION_READY"
+      ? "Routed to: application preparation (strong match)"
+      : "Routed to: learning plan (skill gaps found)";
+    fillPills("missingSkills", data.missing_skills, "None — great match!", overviewColor, overviewSoft);
+    fillList("strengthsList", data.strengths, "No strengths listed.");
+    fillList("weaknessesList", data.weaknesses, "No weaknesses listed.");
+
+    const plan = data.learning_plan || {};
+    const hasLearning = plan.learning_steps && plan.learning_steps.length > 0;
+    document.getElementById("learningGoal").textContent =
+      plan.goal ? `${plan.goal} — estimated ${plan.estimated_duration || "—"}` : "No learning plan generated.";
+
+    const stepsEl = document.getElementById("learningSteps");
+    stepsEl.innerHTML = "";
+    (plan.learning_steps || []).forEach(step => {
+      const body = `<p>${step.why_needed || ""}</p><ul>${(step.tasks || []).map(t => `<li>${t}</li>`).join("")}</ul>`;
+      stepsEl.appendChild(detailsItem(step.estimated_time, learningColor, learningSoft, step.skill || "", body));
+    });
+
+    fillList(
+      "learningProjects",
+      (plan.projects_to_build || []).map(p => `${p.project_name}: ${p.description}`),
+      "No suggested projects."
+    );
+
+    const improvements = data.resume_improvements || {};
+    renderTruncated("resumeSummaryBlock", improvements.summary_suggestion, 220, resumeColor);
+
+    const bulletsEl = document.getElementById("bulletImprovements");
+    bulletsEl.innerHTML = "";
+    const bullets = improvements.bullet_point_improvements || [];
+    if (bullets.length === 0) {
+      bulletsEl.innerHTML = `<p class="empty-note">No bullet point improvements generated.</p>`;
+    } else {
+      bullets.forEach(b => {
+        const body = `<p style="margin-bottom:6px;"><strong>Original:</strong> ${b.original || ""}</p>`;
+        bulletsEl.appendChild(detailsItem(b.section, resumeColor, resumeSoft, b.improved || "", body));
+      });
+    }
+    fillPills("keywordsToAdd", improvements.keywords_to_add, "No keywords suggested.", resumeColor, resumeSoft);
+
+    const interview = data.interview_prep || {};
+    renderQA("technicalQuestions", interview.technical_questions, "expected_answer", interviewColor, interviewSoft);
+    renderQA("projectQuestions", interview.project_questions, "expected_answer", interviewColor, interviewSoft);
+    renderQA("behavioralQuestions", interview.behavioral_questions, "tips", interviewColor, interviewSoft);
+
+    const app = data.application_package || {};
+    renderTruncated("applicationSummaryBlock", app.application_summary, 220, applicationColor);
+    fillList("talkingPoints", app.talking_points, "None generated.");
+    fillList("applicationChecklist", app.checklist, "None generated.");
+
+    const availableKeys = ["overview"];
+    if (hasLearning) availableKeys.push("learning");
+    if (improvements.summary_suggestion) availableKeys.push("resume");
+    if (Object.keys(interview).length > 0) availableKeys.push("interview");
+    if (app.application_summary) availableKeys.push("application");
+
+    buildTabs(availableKeys);
+    switchTab("overview", overviewColor);
+  }
+
+  function renderQA(elId, items, answerKey, color, soft) {
+    const el = document.getElementById(elId);
+    el.innerHTML = "";
+    if (!items || items.length === 0) { el.innerHTML = `<p class="empty-note">None generated.</p>`; return; }
+    items.forEach(item => {
+      const body = `<p>${item[answerKey] || ""}</p>`;
+      el.appendChild(detailsItem(null, color, soft, item.question || "", body));
+    });
+  }
+</script>
+
+</body>
+</html>
