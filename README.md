@@ -11,45 +11,48 @@ Built as a capstone project for an Advanced Agentic AI Systems Engineering cours
 	4.	Every candidate — regardless of score — also gets rewritten resume bullet points and a set of interview questions (technical, project-specific, behavioral) with expected answers.
 	5.	If you're logged in, every analysis is saved so you can revisit it later from your dashboard.
 
-# Architecture
+## Architecture
 A single FastAPI backend orchestrates a LangGraph multi-agent pipeline, backed by a locally-running LLM. A lightweight static HTML/CSS/JS frontend talks to it over a plain REST API.
-   resume upload
-         │
-         ▼
-┌──────────────────┐
-│ Resume Analysis  │  extracts skills, education, experience, strengths/weaknesses
-└────────┬─────────┘
-         ▼
-┌──────────────────┐
-│ Job Requirements │  generates the target role's expected skill profile
-└────────┬─────────┘
-         ▼
-┌──────────────────┐
-│   Skill Gap      │  compares resume vs. requirements → match score
-└────────┬─────────┘
-         │
-   ┌─────┴──────┐
-   ▼            ▼
-≥ 80%        < 80%
-   │            │
-┌───────────┐  ┌──────────────────┐
-│Application│  │ Learning Planner │ Application Ready: confirms qualification and readiness for the role (match score $\ge$ 80%)
-│  Ready    │  │  (skills, tasks, │ 
-│           │  │  time estimates) │ Learning Planner: generates targeted skills, tasks, and time estimates to bridge the skill gap 
-└─────┬─────┘  └────────┬─────────┘
-      └────────┬────────┘
-               ▼
-     ┌────────────────────┐
-     │ Resume Improvement │  rewritten summary, bullet points, keywords
-     └─────────┬──────────┘
-               ▼
-     ┌────────────────────┐
-     │  Interview Prep    │  technical / project / behavioral Q&A
-     └─────────┬──────────┘
-               ▼
-              END
-Both branches (application-ready and learning-plan) converge on the same resume-improvement → interview-prep tail, so every candidate gets a complete package regardless of their current match score.
 
+```text
+       resume upload
+            │
+            ▼
+┌───────────────────┐
+│  Resume Analysis  │ extracts skills, education, experience, strengths/weaknesses
+└───────────────────┘
+            │
+            ▼
+┌───────────────────┐
+│  Job Requirements │ generates the target role's expected skill profile
+└───────────────────┘
+            │
+            ▼
+┌───────────────────┐
+│     Skill Gap     │ compares resume vs. requirements → match score
+└───────────────────┘
+            │
+      ┌─────┴─────┐
+      ▼           ▼
+   ≥ 80%       < 80%
+      │           │
+┌───────────┐ ┌───────────────────┐ 
+│Application│ │  Learning Planner │ Application Ready: confirms qualification and readiness for the role (match score ≥ 80%)
+│   Ready   │ │ (skills, tasks,   │ 
+└───────────┘ │  time estimates)  │ Learning Planner: generates targeted skills, tasks, and time estimates to bridge the skill gap
+      │       └───────────────────┘
+      └─────┬─────┘
+            ▼
+┌───────────────────────┐
+│  Resume Improvement   │ rewritten summary, bullet points, keywords
+└───────────────────────┘
+            │
+            ▼
+┌───────────────────────┐
+│    Interview Prep     │ technical / project / behavioral Q&A
+└───────────────────────┘
+            ▼ 
+END Both branches (application-ready and learning-plan) converge on the same resume-improvement → interview-prep tail, so every candidate gets a complete package regardless of their current match score.
 # Tech stack
 Layer	Choice	Why
 - Agent orchestration	LangGraph	Explicit state machine over the pipeline — conditional routing, shared state, easy to reason about and extend
