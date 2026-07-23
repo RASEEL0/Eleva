@@ -1,17 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from database import init_db
 from routers.career import router as career_router
+from routers.auth import router as auth_router
 
 app = FastAPI(
     title="Eleva",
     version="1.0.0"
 )
 
-# Allow the Lovable frontend (or the ngrok-tunneled version of this
-# backend) to call this API from a different origin. Tighten
-# allow_origins to your exact Lovable domain once you know it,
-# instead of "*", for anything beyond local testing.
+
+@app.on_event("startup")
+def startup_event():
+    init_db()
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,4 +36,9 @@ app.include_router(
     career_router,
     prefix="/career",
     tags=["Career"]
+)
+
+app.include_router(
+    auth_router,
+    tags=["Auth"]
 )
