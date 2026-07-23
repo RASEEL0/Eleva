@@ -53,19 +53,40 @@ A single FastAPI backend orchestrates a LangGraph multi-agent pipeline, backed b
 └───────────────────────┘
             ▼ 
 END Both branches (application-ready and learning-plan) converge on the same resume-improvement → interview-prep tail, so every candidate gets a complete package regardless of their current match score.
-# Tech stack
-Layer	Choice	Why
-- Agent orchestration	LangGraph	Explicit state machine over the pipeline — conditional routing, shared state, easy to reason about and extend
-LLM	Qwen2.5:7B, served via Ollama	Runs fully locally, no API cost, good enough instruction-following for structured JSON output
-LLM client	langchain-ollama(ChatOllama)	Thin, well-supported wrapper around Ollama's API
-- Backend framework	FastAPI	Async, typed, minimal boilerplate, native file upload support
-- Database	SQLite via SQLAlchemy	Zero setup, single file, sufficient for this scale; ORM makes swapping to Postgres later trivial
-- Auth	Passlib (bcrypt) + in-memory session tokens	Simple and fast to implement for a capstone; sessions reset on server restart (documented limitation, not persisted to a sessions table yet)
-- Frontend	Plain HTML / CSS / vanilla JS	No build step, no framework overhead — one file, easy to demo and easy to containerize
-PDF parsing	pypdf	Extracts raw resume text before it's handed to the LLM
-Dev tunneling	ngrok	Exposes the local backend to the cloud-hosted frontend during development
-Planned deployment	Docker Compose	One container each for the backend, Ollama, and the database, so the whole stack starts with one command
-- The agents
+We containerized the API with Docker Compose for reproducible deployment
+
+
+
+ # Tech Stack
+
+- fastAPI — backend API framework; chosen for async support and automatic
+  request validation, which suits a multi-step AI pipeline well.
+
+- LangGraph — orchestrates the multi-agent pipeline as a state graph
+  (resume → job analysis → skill gap → learning/application → interview),
+  with conditional routing based on match score.
+
+- Ollama + qwen2.5:7b — runs the LLM locally instead of a paid API,
+  avoiding per-token costs and keeping candidate resume data on our own
+  infrastructure rather than sending it to a third party.
+
+- SQLAlchemy + SQLite — stores user accounts and analysis history;
+  SQLite chosen for zero external setup, appropriate for a capstone-scale
+  deployment.
+
+- Passlib (bcrypt) — hashes passwords before storage; industry-standard,
+  avoids ever storing plaintext credentials.
+
+- pypdf — extracts raw text from uploaded resume PDFs before sending
+  it to the LLM for structured analysis.
+
+- Docker / Docker Compose** — containerizes the app for reproducible,
+  one-command deployment (`docker compose up`) instead of manual
+  environment setup.
+
+- ngrok — exposes the locally-running backend to the internet with a
+  public HTTPS URL, without needing a hosted server for the demo.
+
 Agent	Role	Output
 Resume Analysis	Parses the PDF and extracts every skill, education entry, work experience, and project, plus an ATS score and strengths/weaknesses	resume_data, ats_score, strengths, weaknesses
 Job Requirements	Given the target job title, generates a realistic required/preferred skill profile and typical responsibilities	required_skills
@@ -123,7 +144,10 @@ Known limitations & roadmap
 	•	Cloud deployment — planned once Docker Compose is in place, on a basic VM (or a managed platform for the backend, with Ollama on a separate always-on host given its memory requirements).
 
 # Team
-Built collaboratively — resume/job/skill-gap/learning/resume-improvement/interview agent pipeline, backend architecture, and frontend; register/login backend groundwork contributed by a teammate.
+Built collaboratively by:
+raseel Al-Khamees
+Aisha gammash
+
 
 
 
